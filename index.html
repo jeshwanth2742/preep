@@ -7,11 +7,29 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Preep Clicker</h1>
-  <div id="game-area">
-    <img id="target" src="assets/preep-logo.png.jpg" alt="Preep Logo" />
+  <div id="login-screen">
+    <h1>Preep Clicker</h1>
+    <input type="text" id="username" placeholder="Enter your name" />
+    <button id="start-btn">Start Game</button>
   </div>
-  <div id="score">Score: 0</div>
+
+  <div id="game-screen" class="hidden">
+    <div id="stats">
+      <div id="timer">Time: 60s</div>
+      <div id="score">Score: 0</div>
+    </div>
+    <div id="game-area">
+      <img id="target" src="assets/preep-logo.png" alt="Preep Logo" />
+    </div>
+    <button id="restart-btn">Restart</button>
+  </div>
+
+  <div id="leaderboard-screen" class="hidden">
+    <h2>Leaderboard</h2>
+    <ul id="leaderboard-list"></ul>
+    <button id="play-again-btn">Play Again</button>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
