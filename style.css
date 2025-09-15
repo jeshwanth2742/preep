@@ -6,10 +6,20 @@ body {
   flex-direction: column;
   height: 100vh;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #111 0%, #222 100%);
-  color: white;
+  font-family: 'Arial', sans-serif;
+  /* Colorful gradient background */
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #ff6a00, #ee0979);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  color: #fff;
   overflow: hidden;
+}
+
+/* Animate the gradient for a flowing effect */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* --- Game Area --- */
@@ -17,10 +27,10 @@ body {
   position: relative;
   width: 400px;
   height: 400px;
-  background: linear-gradient(145deg, #222, #111);
-  border: 2px solid white;
+  background: linear-gradient(145deg, #333, #555);
   border-radius: 15px;
-  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+  border: 2px solid #fff;
+  box-shadow: 0 0 20px rgba(255,255,255,0.3);
   overflow: hidden;
   margin-bottom: 15px;
 }
@@ -33,10 +43,8 @@ body {
   cursor: pointer;
   border-radius: 50%;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 0 0 5px #fff;
+  box-shadow: 0 0 10px #fff;
 }
-
-/* Pop/bounce handled by JS transform scale */
 
 /* --- Score & Timer --- */
 #score, #timer {
@@ -44,6 +52,7 @@ body {
   margin: 5px 0;
   text-align: center;
   transition: color 0.2s ease;
+  text-shadow: 0 0 5px #fff;
 }
 
 /* --- Floating feedback +1/-1 --- */
@@ -53,7 +62,7 @@ body {
   font-weight: bold;
   pointer-events: none;
   animation: floatUp 0.8s ease-out forwards;
-  color: #0f0; /* JS will override color for negative */
+  color: #0f0; /* JS will override for negative */
 }
 
 @keyframes floatUp {
@@ -74,6 +83,7 @@ body {
   margin: 5px 0;
   border-radius: 8px;
   box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  color: #ff0; /* bright neon color */
 }
 
 /* --- Buttons --- */
@@ -83,14 +93,14 @@ button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background: #0f0;
+  background: #ff0;
   color: #111;
   font-weight: bold;
   transition: background 0.2s ease;
 }
 
 button:hover {
-  background: #0c0;
+  background: #ffc107;
 }
 
 /* --- Login / Leaderboard Screens --- */
