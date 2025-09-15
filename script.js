@@ -1,10 +1,27 @@
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
-// --- Screens ---
+// --- Firebase Config ---
+const firebaseConfig = {
+  apiKey: "AIzaSyCiKGqhSSCVQ3GPtnMA1DZSzemXLWoBM1M",
+  authDomain: "preepclicker.firebaseapp.com",
+  projectId: "preepclicker",
+  storageBucket: "preepclicker.firebasestorage.app",
+  messagingSenderId: "108481604",
+  appId: "1:108481604:web:ee13c981b725d02f68c011",
+  measurementId: "G-VHRHQF036D"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
+// --- Screens & Elements (same as before) ---
 const loginScreen = document.getElementById("login-screen");
 const gameScreen = document.getElementById("game-screen");
 const leaderboardScreen = document.getElementById("leaderboard-screen");
 
-// --- Elements ---
 const usernameInput = document.getElementById("username");
 const startBtn = document.getElementById("start-btn");
 const playAgainBtn = document.getElementById("play-again-btn");
@@ -16,7 +33,7 @@ const scoreDisplay = document.getElementById("score");
 const timerDisplay = document.getElementById("timer");
 const leaderboardList = document.getElementById("leaderboard-list");
 
-// --- Game variables ---
+// --- Game Variables ---
 let username = "";
 let score = 0;
 let timeLeft = 60;
@@ -31,11 +48,11 @@ startBtn.addEventListener("click", () => {
   startGame();
 });
 
-// --- Restart Game ---
+// --- Restart / Play Again ---
 restartBtn.addEventListener("click", () => location.reload());
 playAgainBtn.addEventListener("click", () => location.reload());
 
-// --- Move target randomly ---
+// --- Move target ---
 function moveTarget() {
   const areaWidth = gameArea.clientWidth;
   const areaHeight = gameArea.clientHeight;
@@ -43,8 +60,6 @@ function moveTarget() {
   const y = Math.random() * (areaHeight - target.clientHeight);
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
-
-  // Random color effect
   target.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
 }
 
@@ -77,32 +92,35 @@ function endGame() {
   clearInterval(timerInterval);
   gameScreen.classList.add("hidden");
   leaderboardScreen.classList.remove("hidden");
-  saveScore(username, score);
-  showLeaderboard();
+  saveScoreFirebase(username, score);
+  logEvent(analytics, 'game_finished', { username, score });
 }
 
-// --- Save score with update for repeated usernames ---
-function saveScore(name, score) {
-  const scores = JSON.parse(localStorage.getItem("preepLeaderboard") || "[]");
+// --- Save Score to Firebase ---
+async function saveScoreFirebase(name, score) {
+  const userRef = doc(db, "leaderboard", name);
+  const userSnap = await getDoc(userRef);
 
-  const existingUser = scores.find(s => s.name === name);
-  if (existingUser) {
-    // Update only if new score is higher
-    if (score > existingUser.score) existingUser.score = score;
+  if (userSnap.exists()) {
+    if (score > userSnap.data().score) {
+      await setDoc(userRef, { score });
+    }
   } else {
-    scores.push({ name, score });
+    await setDoc(userRef, { score });
   }
 
-  // Sort descending and keep top 5
-  scores.sort((a, b) => b.score - a.score);
-  localStorage.setItem("preepLeaderboard", JSON.stringify(scores.slice(0, 5)));
+  showLeaderboardFirebase();
 }
 
-// --- Show leaderboard ---
-function showLeaderboard() {
-  const scores = JSON.parse(localStorage.getItem("preepLeaderboard") || "[]");
-  leaderboardList.innerHTML = scores
-    .map((s, i) => `<li>${i + 1}. ${s.name} - ${s.score}</li>`)
-    .join("");
-}
+// --- Show Leaderboard ---
+async function showLeaderboardFirebase() {
+  const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(5));
+  const querySnapshot = await getDocs(q);
+
+  leaderboardList.innerHTML = "";
+  let rank = 1;
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    leaderboardList.inner
+
 
