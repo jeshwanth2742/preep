@@ -1,20 +1,25 @@
 /* --- Body / Background --- */
-/* Animated gradient only for login / leaderboard screens */
-body.login-screen, body.leaderboard-screen {
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  /* Colorful gradient background */
   background: linear-gradient(135deg, #1e3c72, #2a5298, #ff6a00, #ee0979);
   background-size: 400% 400%;
   animation: gradientBG 15s ease infinite;
+  color: #fff;
+  overflow: hidden;
 }
 
+/* Animate the gradient for a flowing effect */
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}
-
-/* --- Game Screen Background (solid color) --- */
-body.game-screen {
-  background: #1a1a1a; /* dark gray / can change to any solid color */
 }
 
 /* --- Game Area --- */
@@ -22,7 +27,7 @@ body.game-screen {
   position: relative;
   width: 400px;
   height: 400px;
-  background: #333; /* solid color, no gradient */
+  background: linear-gradient(145deg, #333, #555);
   border-radius: 15px;
   border: 2px solid #fff;
   box-shadow: 0 0 20px rgba(255,255,255,0.3);
@@ -57,7 +62,7 @@ body.game-screen {
   font-weight: bold;
   pointer-events: none;
   animation: floatUp 0.8s ease-out forwards;
-  color: #0f0; /* JS overrides for negative */
+  color: #0f0; /* JS will override for negative */
 }
 
 @keyframes floatUp {
