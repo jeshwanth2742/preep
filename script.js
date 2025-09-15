@@ -18,7 +18,7 @@ const leaderboardList = document.getElementById("leaderboard-list");
 // --- Game Variables ---
 let username = "";
 let score = 0;
-let timeLeft = 20;
+let timeLeft = 25; // increased game time
 let timerInterval;
 let disappearTimeout;
 
@@ -37,24 +37,25 @@ playAgainBtn.addEventListener("click", () => location.reload());
 
 // --- Move target randomly ---
 function moveTarget() {
-  const areaWidth = gameArea.clientWidth;
-  const areaHeight = gameArea.clientHeight;
-  const x = Math.random() * (areaWidth - target.clientWidth);
-  const y = Math.random() * (areaHeight - target.clientHeight);
+  const areaWidth = gameArea.clientWidth - target.clientWidth;
+  const areaHeight = gameArea.clientHeight - target.clientHeight;
+  const x = Math.random() * areaWidth;
+  const y = Math.random() * areaHeight;
+
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
   target.style.display = "block";
 
-  // Only start disappearance timer when visible
+  // Target disappears automatically slightly faster (500ms)
   clearTimeout(disappearTimeout);
   disappearTimeout = setTimeout(() => {
     target.style.display = "none";
 
     // Schedule next appearance automatically
     if (timeLeft > 0) {
-      setTimeout(moveTarget, 300); // short delay before reappearing
+      setTimeout(moveTarget, 200); // short delay before reappearing
     }
-  }, 1000); // target stays visible 1 second before disappearing
+  }, 500); // slightly faster disappearance
 }
 
 // --- Target click ---
@@ -71,7 +72,7 @@ target.addEventListener("click", () => {
 // --- Start the game ---
 function startGame() {
   score = 0;
-  timeLeft = 20;
+  timeLeft = 25; // updated game time
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time: ${timeLeft}s`;
 
