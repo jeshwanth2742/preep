@@ -61,10 +61,10 @@ playAgainBtn.addEventListener("click", () => location.reload());
 
 // --- Move target randomly ---
 function moveTarget() {
-  const areaWidth = gameArea.clientWidth - target.clientWidth;
-  const areaHeight = gameArea.clientHeight - target.clientHeight;
+  const areaWidth = gameArea.clientWidth - target.clientWidth; // ensure full width
+  const areaHeight = gameArea.clientHeight - target.clientHeight; // ensure full height
 
-  // Ensure the target does not appear at the same spot consecutively
+  // Generate random position with small buffer from edges
   let x, y;
   do {
     x = Math.random() * areaWidth;
@@ -74,17 +74,19 @@ function moveTarget() {
   target.dataset.lastX = x;
   target.dataset.lastY = y;
 
+  // Apply position
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
   target.style.display = "block";
 
-  // Only positive target
+  // Positive target setup
   target.style.backgroundImage = "url('assets/preep-logo.png')";
   target.style.backgroundColor = "transparent";
-  target.style.boxShadow = "0 0 10px #fff"; // glow
+  target.style.boxShadow = "0 0 10px #fff";
   target.style.transform = "scale(0)";
   setTimeout(() => target.style.transform = "scale(1)", 50);
 
+  // Disappear after time
   clearTimeout(disappearTimeout);
   disappearTimeout = setTimeout(() => {
     target.style.display = "none";
@@ -111,6 +113,7 @@ target.addEventListener("click", () => {
   scoreDisplay.style.color = "#0f0";
   setTimeout(() => scoreDisplay.style.color = "#fff", 200);
 
+  // Scale-up click animation
   target.style.transform = "scale(1.2)";
   setTimeout(() => target.style.transform = "scale(1)", 100);
 
