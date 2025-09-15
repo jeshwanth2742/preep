@@ -18,7 +18,7 @@ const leaderboardList = document.getElementById("leaderboard-list");
 // --- Game Variables ---
 let username = "";
 let score = 0;
-let timeLeft = 20; // game time in seconds
+let timeLeft = 20;
 let timerInterval;
 let disappearTimeout;
 
@@ -45,11 +45,16 @@ function moveTarget() {
   target.style.top = `${y}px`;
   target.style.display = "block";
 
-  // Target disappears automatically after 700ms if not clicked
+  // Only start disappearance timer when visible
   clearTimeout(disappearTimeout);
   disappearTimeout = setTimeout(() => {
     target.style.display = "none";
-  }, 700); // disappear time
+
+    // Schedule next appearance automatically
+    if (timeLeft > 0) {
+      setTimeout(moveTarget, 300); // short delay before reappearing
+    }
+  }, 1000); // target stays visible 1 second before disappearing
 }
 
 // --- Target click ---
@@ -57,12 +62,10 @@ target.addEventListener("click", () => {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
 
-  // Clicked before disappearing → move immediately
+  // Clicked → hide and move immediately
   clearTimeout(disappearTimeout);
   target.style.display = "none";
-
-  // Move to next spot after short delay
-  setTimeout(moveTarget, 100);
+  setTimeout(moveTarget, 100); // small delay before next appearance
 });
 
 // --- Start the game ---
@@ -85,6 +88,7 @@ function startGame() {
 function endGame() {
   clearInterval(timerInterval);
   clearTimeout(disappearTimeout);
+  target.style.display = "none";
   gameScreen.classList.add("hidden");
   leaderboardScreen.classList.remove("hidden");
   saveScoreFirebase(username, score);
