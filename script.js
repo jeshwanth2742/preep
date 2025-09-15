@@ -77,13 +77,14 @@ function moveTarget() {
   target.dataset.negative = isNegative ? "true" : "false";
 
   // Set appearance
-  if (isNegative) {
-    target.style.backgroundImage = "";
-    target.style.backgroundColor = "black";
-  } else {
-    target.style.backgroundImage = "url('assets/preep-logo.png')";
-    target.style.backgroundColor = "transparent";
-  }
+ if (isNegative) {
+  target.style.backgroundImage = "";       // remove logo
+  target.style.backgroundColor = "white";  // white dot for negative
+} else {
+  target.style.backgroundImage = "url('assets/preep-logo.png')";
+  target.style.backgroundColor = "transparent";
+}
+}
 
   target.style.boxShadow = "0 0 10px #fff"; // glow
   target.style.transform = "scale(0)"; // pop effect
