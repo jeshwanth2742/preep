@@ -15,12 +15,18 @@ const scoreDisplay = document.getElementById("score");
 const timerDisplay = document.getElementById("timer");
 const leaderboardList = document.getElementById("leaderboard-list");
 
+// --- Sounds ---
+const hitSound = new Audio("hit.mp3"); // positive hit
+const missSound = new Audio("miss.mp3"); // miss or negative
+
 // --- Game Variables ---
 let username = "";
 let score = 0;
-let timeLeft = 25; // increased game time
+let timeLeft = 25;
 let timerInterval;
 let disappearTimeout;
+let disappearTime = 700; // starts slower
+let negativeChance = 0.2; // 20% chance negative
 
 // --- Start Game ---
 startBtn.addEventListener("click", () => {
@@ -46,33 +52,66 @@ function moveTarget() {
   target.style.top = `${y}px`;
   target.style.display = "block";
 
-  // Target disappears automatically slightly faster (500ms)
+  // Decide if this target is negative
+  const isNegative = Math.random() < negativeChance;
+  target.dataset.negative = isNegative ? "true" : "false";
+  target.style.background = isNegative ? "black" : "url('assets/preep-logo.png') no-repeat center/cover";
+  target.style.boxShadow = "0 0 10px #fff"; // glow effect
+  target.style.transform = "scale(0)"; // start small
+  setTimeout(() => target.style.transform = "scale(1)", 50); // pop animation
+
+  // Target disappears automatically
   clearTimeout(disappearTimeout);
   disappearTimeout = setTimeout(() => {
     target.style.display = "none";
+    if (!isNegative) missSound.play(); // optional miss sound for positive missed target
 
-    // Schedule next appearance automatically
+    // Schedule next appearance if game not over
     if (timeLeft > 0) {
-      setTimeout(moveTarget, 200); // short delay before reappearing
+      setTimeout(moveTarget, 200);
     }
-  }, 500); // slightly faster disappearance
+  }, disappearTime);
 }
 
 // --- Target click ---
 target.addEventListener("click", () => {
-  score++;
-  scoreDisplay.textContent = `Score: ${score}`;
-
-  // Clicked → hide and move immediately
-  clearTimeout(disappearTimeout);
+  const isNegative = target.dataset.negative === "true";
   target.style.display = "none";
-  setTimeout(moveTarget, 100); // small delay before next appearance
+  clearTimeout(disappearTimeout);
+
+  // Score feedback
+  const feedback = document.createElement("div");
+  feedback.className = "score-feedback";
+  feedback.textContent = isNegative ? "-1" : "+1";
+  feedback.style.left = target.style.left;
+  feedback.style.top = target.style.top;
+  gameArea.appendChild(feedback);
+  setTimeout(() => feedback.remove(), 800);
+
+  // Update score
+  if (isNegative) {
+    score = Math.max(0, score - 1);
+  } else {
+    score++;
+    hitSound.play();
+  }
+  scoreDisplay.textContent = `Score: ${score}`;
+  scoreDisplay.style.color = isNegative ? "#f00" : "#0f0";
+  setTimeout(() => scoreDisplay.style.color = "#fff", 200);
+
+  // Slight scale-up animation
+  target.style.transform = "scale(1.2)";
+  setTimeout(() => target.style.transform = "scale(1)", 100);
+
+  // Next target
+  setTimeout(moveTarget, 100);
 });
 
 // --- Start the game ---
 function startGame() {
   score = 0;
-  timeLeft = 25; // updated game time
+  timeLeft = 25;
+  disappearTime = 700; // reset disappearance speed
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time: ${timeLeft}s`;
 
@@ -81,6 +120,10 @@ function startGame() {
   timerInterval = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = `Time: ${timeLeft}s`;
+
+    // Gradually increase difficulty
+    disappearTime = Math.max(300, disappearTime - 10); // faster but not too fast
+
     if (timeLeft <= 0) endGame();
   }, 1000);
 }
