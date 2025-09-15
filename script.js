@@ -49,18 +49,18 @@ target.addEventListener("click", () => {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
 
-  // disappear briefly
-  target.style.opacity = "0";
+  // disappear only on click
+  target.style.display = "none"; 
   setTimeout(() => {
-    target.style.opacity = "1";
-    moveTarget();
-  }, 100);
+    moveTarget();               // move to a new random position
+    target.style.display = "block"; // show again
+  }, 200); // 200ms delay
 });
 
 // --- Start the game ---
 function startGame() {
   score = 0;
-  timeLeft = 20; // reduced time
+  timeLeft = 20; // 20 seconds game
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time: ${timeLeft}s`;
   moveTarget();
