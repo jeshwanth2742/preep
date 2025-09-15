@@ -15,9 +15,8 @@ const scoreDisplay = document.getElementById("score");
 const timerDisplay = document.getElementById("timer");
 const leaderboardList = document.getElementById("leaderboard-list");
 
-// --- Sounds (optional: remove if not using) ---
-const hitSound = new Audio("hit.mp3"); // positive target
-const missSound = new Audio("miss.mp3"); // miss or negative
+// --- Sounds ---
+const hitSound = new Audio("hit.mp3"); // optional
 
 // --- Game Variables ---
 let username = "";
@@ -25,8 +24,7 @@ let score = 0;
 let timeLeft = 25;
 let timerInterval;
 let disappearTimeout;
-let disappearTime = 700; // start slower
-let negativeChance = 0.2; // 20% chance negative
+let disappearTime = 700; // initial disappearance speed
 
 // --- Start Game ---
 startBtn.addEventListener("click", () => {
@@ -44,12 +42,11 @@ startBtn.addEventListener("click", () => {
 
   moveTarget(); // start first target
 
-  // Start countdown timer
   timerInterval = setInterval(() => {
     timeLeft--;
     timerDisplay.textContent = `Time: ${timeLeft}s`;
 
-    // Gradually increase difficulty every 5 seconds
+    // Gradually increase difficulty
     if (timeLeft % 5 === 0 && disappearTime > 400) {
       disappearTime -= 50;
     }
@@ -66,69 +63,57 @@ playAgainBtn.addEventListener("click", () => location.reload());
 function moveTarget() {
   const areaWidth = gameArea.clientWidth - target.clientWidth;
   const areaHeight = gameArea.clientHeight - target.clientHeight;
-  const x = Math.random() * areaWidth;
-  const y = Math.random() * areaHeight;
+
+  // Ensure the target does not appear at the same spot consecutively
+  let x, y;
+  do {
+    x = Math.random() * areaWidth;
+    y = Math.random() * areaHeight;
+  } while (target.dataset.lastX == x && target.dataset.lastY == y);
+
+  target.dataset.lastX = x;
+  target.dataset.lastY = y;
 
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
   target.style.display = "block";
 
-  const isNegative = Math.random() < negativeChance;
-  target.dataset.negative = isNegative ? "true" : "false";
-
-  // Set appearance
-  if (isNegative) {
-    target.style.backgroundImage = "";
-    target.style.backgroundColor = "white";
-  } else {
-    target.style.backgroundImage = "url('assets/preep-logo.png')";
-    target.style.backgroundColor = "transparent";
-  }
-
+  // Only positive target
+  target.style.backgroundImage = "url('assets/preep-logo.png')";
+  target.style.backgroundColor = "transparent";
   target.style.boxShadow = "0 0 10px #fff"; // glow
-  target.style.transform = "scale(0)"; // pop effect
+  target.style.transform = "scale(0)";
   setTimeout(() => target.style.transform = "scale(1)", 50);
 
-  // Disappear after disappearTime
   clearTimeout(disappearTimeout);
   disappearTimeout = setTimeout(() => {
     target.style.display = "none";
-    if (!isNegative) missSound.play(); // optional miss sound
-    if (timeLeft > 0) setTimeout(moveTarget, 200); // next appearance
+    if (timeLeft > 0) setTimeout(moveTarget, 200);
   }, disappearTime);
 }
 
 // --- Target click ---
 target.addEventListener("click", () => {
-  const isNegative = target.dataset.negative === "true";
   target.style.display = "none";
   clearTimeout(disappearTimeout);
 
-  // Floating score feedback
+  // Floating feedback
   const feedback = document.createElement("div");
   feedback.className = "score-feedback";
-  feedback.textContent = isNegative ? "-1" : "+1";
+  feedback.textContent = "+1";
   feedback.style.left = target.style.left;
   feedback.style.top = target.style.top;
   gameArea.appendChild(feedback);
   setTimeout(() => feedback.remove(), 800);
 
-  // Update score
-  if (isNegative) {
-    score = Math.max(0, score - 1);
-  } else {
-    score++;
-    hitSound.play();
-  }
+  score++;
   scoreDisplay.textContent = `Score: ${score}`;
-  scoreDisplay.style.color = isNegative ? "#f00" : "#0f0";
+  scoreDisplay.style.color = "#0f0";
   setTimeout(() => scoreDisplay.style.color = "#fff", 200);
 
-  // Scale-up click animation
   target.style.transform = "scale(1.2)";
   setTimeout(() => target.style.transform = "scale(1)", 100);
 
-  // Next target
   setTimeout(moveTarget, 100);
 });
 
