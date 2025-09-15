@@ -107,11 +107,18 @@ button {
   text-decoration: none;
   font-weight: bold;
   background: rgba(0,0,0,0.5);
-  padding: 3px 6px;
+  padding: 3px 8px;
   border-radius: 5px;
   transition: all 0.2s ease;
   z-index: 1000;
 }
+
+#creator-link:hover {
+  color: #fff;
+  background: rgba(0,255,255,0.7);
+  transform: scale(1.1);
+}
+
 
 #creator-link:hover {
   color: #fff;
