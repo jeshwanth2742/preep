@@ -50,8 +50,12 @@ target.addEventListener("click", () => {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
   target.style.transform = "scale(1.2)";
-  setTimeout(() => (target.style.transform = "scale(1)"), 100);
-  moveTarget();
+  target.style.opacity = "0"; // disappear briefly
+  setTimeout(() => {
+    target.style.transform = "scale(1)";
+    target.style.opacity = "1";
+    moveTarget();
+  }, 100);
 });
 
 // --- Start the game ---
@@ -111,6 +115,7 @@ function showLeaderboardFirebase() {
       });
     });
 }
+
 
 
 
