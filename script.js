@@ -1,3 +1,68 @@
+// --- Screens ---
+const loginScreen = document.getElementById("login-screen");
+const gameScreen = document.getElementById("game-screen");
+const leaderboardScreen = document.getElementById("leaderboard-screen");
+
+// --- Elements ---
+const usernameInput = document.getElementById("username");
+const startBtn = document.getElementById("start-btn");
+const playAgainBtn = document.getElementById("play-again-btn");
+const restartBtn = document.getElementById("restart-btn");
+
+const target = document.getElementById("target");
+const gameArea = document.getElementById("game-area");
+const scoreDisplay = document.getElementById("score");
+const timerDisplay = document.getElementById("timer");
+const leaderboardList = document.getElementById("leaderboard-list");
+
+// --- Sounds (optional: remove if not using) ---
+const hitSound = new Audio("hit.mp3"); // positive target
+const missSound = new Audio("miss.mp3"); // miss or negative
+
+// --- Game Variables ---
+let username = "";
+let score = 0;
+let timeLeft = 25;
+let timerInterval;
+let disappearTimeout;
+let disappearTime = 700; // start slower
+let negativeChance = 0.2; // 20% chance negative
+
+// --- Start Game ---
+startBtn.addEventListener("click", () => {
+  username = usernameInput.value.trim();
+  if (!username) return alert("Please enter your name!");
+
+  loginScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+
+  score = 0;
+  timeLeft = 25;
+  disappearTime = 700;
+  scoreDisplay.textContent = `Score: ${score}`;
+  timerDisplay.textContent = `Time: ${timeLeft}s`;
+
+  moveTarget(); // start first target
+
+  // Start countdown timer
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = `Time: ${timeLeft}s`;
+
+    // Gradually increase difficulty every 5 seconds
+    if (timeLeft % 5 === 0 && disappearTime > 400) {
+      disappearTime -= 50;
+    }
+
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+});
+
+// --- Restart / Play Again ---
+restartBtn.addEventListener("click", () => location.reload());
+playAgainBtn.addEventListener("click", () => location.reload());
+
+// --- Move target randomly ---
 function moveTarget() {
   const areaWidth = gameArea.clientWidth - target.clientWidth;
   const areaHeight = gameArea.clientHeight - target.clientHeight;
@@ -11,6 +76,7 @@ function moveTarget() {
   const isNegative = Math.random() < negativeChance;
   target.dataset.negative = isNegative ? "true" : "false";
 
+  // Set appearance
   if (isNegative) {
     target.style.backgroundImage = "";
     target.style.backgroundColor = "black";
@@ -19,16 +85,91 @@ function moveTarget() {
     target.style.backgroundColor = "transparent";
   }
 
-  target.style.boxShadow = "0 0 10px #fff";
-  target.style.transform = "scale(0)";
+  target.style.boxShadow = "0 0 10px #fff"; // glow
+  target.style.transform = "scale(0)"; // pop effect
   setTimeout(() => target.style.transform = "scale(1)", 50);
 
+  // Disappear after disappearTime
   clearTimeout(disappearTimeout);
   disappearTimeout = setTimeout(() => {
     target.style.display = "none";
-    if (!isNegative) missSound.play();
-    if (timeLeft > 0) setTimeout(moveTarget, 200);
+    if (!isNegative) missSound.play(); // optional miss sound
+    if (timeLeft > 0) setTimeout(moveTarget, 200); // next appearance
   }, disappearTime);
+}
+
+// --- Target click ---
+target.addEventListener("click", () => {
+  const isNegative = target.dataset.negative === "true";
+  target.style.display = "none";
+  clearTimeout(disappearTimeout);
+
+  // Floating score feedback
+  const feedback = document.createElement("div");
+  feedback.className = "score-feedback";
+  feedback.textContent = isNegative ? "-1" : "+1";
+  feedback.style.left = target.style.left;
+  feedback.style.top = target.style.top;
+  gameArea.appendChild(feedback);
+  setTimeout(() => feedback.remove(), 800);
+
+  // Update score
+  if (isNegative) {
+    score = Math.max(0, score - 1);
+  } else {
+    score++;
+    hitSound.play();
+  }
+  scoreDisplay.textContent = `Score: ${score}`;
+  scoreDisplay.style.color = isNegative ? "#f00" : "#0f0";
+  setTimeout(() => scoreDisplay.style.color = "#fff", 200);
+
+  // Scale-up click animation
+  target.style.transform = "scale(1.2)";
+  setTimeout(() => target.style.transform = "scale(1)", 100);
+
+  // Next target
+  setTimeout(moveTarget, 100);
+});
+
+// --- End the game ---
+function endGame() {
+  clearInterval(timerInterval);
+  clearTimeout(disappearTimeout);
+  target.style.display = "none";
+  gameScreen.classList.add("hidden");
+  leaderboardScreen.classList.remove("hidden");
+  saveScoreFirebase(username, score);
+  firebase.analytics().logEvent('game_finished', { username, score });
+}
+
+// --- Save Score to Firebase ---
+function saveScoreFirebase(name, score) {
+  const userRef = firebase.firestore().collection("leaderboard").doc(name);
+  userRef.get().then((doc) => {
+    if (doc.exists) {
+      if (score > doc.data().score) userRef.set({ score });
+    } else {
+      userRef.set({ score });
+    }
+  }).finally(() => showLeaderboardFirebase());
+}
+
+// --- Show Leaderboard ---
+function showLeaderboardFirebase() {
+  firebase.firestore()
+    .collection("leaderboard")
+    .orderBy("score", "desc")
+    .limit(5)
+    .get()
+    .then((snapshot) => {
+      leaderboardList.innerHTML = "";
+      let rank = 1;
+      snapshot.forEach(doc => {
+        leaderboardList.innerHTML += `<li>${rank}. ${doc.id} - ${doc.data().score}</li>`;
+        rank++;
+      });
+    });
 }
 
 
