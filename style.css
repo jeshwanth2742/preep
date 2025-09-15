@@ -7,19 +7,9 @@ body {
   height: 100vh;
   margin: 0;
   font-family: 'Arial', sans-serif;
-  /* Colorful gradient background */
-  background: linear-gradient(135deg, #1e3c72, #2a5298, #ff6a00, #ee0979);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  background: #1a1a1a; /* solid dark color */
   color: #fff;
   overflow: hidden;
-}
-
-/* Animate the gradient for a flowing effect */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* --- Game Area --- */
@@ -27,7 +17,7 @@ body {
   position: relative;
   width: 400px;
   height: 400px;
-  background: linear-gradient(145deg, #333, #555);
+  background: #333; /* solid color */
   border-radius: 15px;
   border: 2px solid #fff;
   box-shadow: 0 0 20px rgba(255,255,255,0.3);
@@ -98,6 +88,12 @@ button {
   font-weight: bold;
   transition: background 0.2s ease;
 }
+
+button:hover {
+  background: #ffc107;
+}
+
+/* --- Creator Credit --- */
 #creator-link {
   position: fixed;
   bottom: 10px;
@@ -119,19 +115,8 @@ button {
   transform: scale(1.1);
 }
 
-
-#creator-link:hover {
-  color: #fff;
-  background: rgba(0,255,255,0.7);
-  transform: scale(1.1);
-}
-
-
-button:hover {
-  background: #ffc107;
-}
-
 /* --- Login / Leaderboard Screens --- */
-.hidden { display: none; }
+.hidde
+
 
 
