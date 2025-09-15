@@ -18,8 +18,9 @@ const leaderboardList = document.getElementById("leaderboard-list");
 // --- Game Variables ---
 let username = "";
 let score = 0;
-let timeLeft = 20; // reduced from 60
+let timeLeft = 20; // game time in seconds
 let timerInterval;
+let disappearTimeout;
 
 // --- Start Game ---
 startBtn.addEventListener("click", () => {
@@ -42,6 +43,13 @@ function moveTarget() {
   const y = Math.random() * (areaHeight - target.clientHeight);
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
+  target.style.display = "block";
+
+  // Target disappears automatically after 700ms if not clicked
+  clearTimeout(disappearTimeout);
+  disappearTimeout = setTimeout(() => {
+    target.style.display = "none";
+  }, 700); // disappear time
 }
 
 // --- Target click ---
@@ -49,21 +57,22 @@ target.addEventListener("click", () => {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
 
-  // disappear only on click
-  target.style.display = "none"; 
-  setTimeout(() => {
-    moveTarget();               // move to a new random position
-    target.style.display = "block"; // show again
-  }, 200); // 200ms delay
+  // Clicked before disappearing → move immediately
+  clearTimeout(disappearTimeout);
+  target.style.display = "none";
+
+  // Move to next spot after short delay
+  setTimeout(moveTarget, 100);
 });
 
 // --- Start the game ---
 function startGame() {
   score = 0;
-  timeLeft = 20; // 20 seconds game
+  timeLeft = 20;
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time: ${timeLeft}s`;
-  moveTarget();
+
+  moveTarget(); // first target
 
   timerInterval = setInterval(() => {
     timeLeft--;
@@ -75,6 +84,7 @@ function startGame() {
 // --- End the game ---
 function endGame() {
   clearInterval(timerInterval);
+  clearTimeout(disappearTimeout);
   gameScreen.classList.add("hidden");
   leaderboardScreen.classList.remove("hidden");
   saveScoreFirebase(username, score);
