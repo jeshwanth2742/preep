@@ -18,7 +18,7 @@ const leaderboardList = document.getElementById("leaderboard-list");
 // --- Game Variables ---
 let username = "";
 let score = 0;
-let timeLeft = 60;
+let timeLeft = 20; // reduced from 60
 let timerInterval;
 
 // --- Start Game ---
@@ -42,17 +42,16 @@ function moveTarget() {
   const y = Math.random() * (areaHeight - target.clientHeight);
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
-  target.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
 }
 
 // --- Target click ---
 target.addEventListener("click", () => {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
-  target.style.transform = "scale(1.2)";
-  target.style.opacity = "0"; // disappear briefly
+
+  // disappear briefly
+  target.style.opacity = "0";
   setTimeout(() => {
-    target.style.transform = "scale(1)";
     target.style.opacity = "1";
     moveTarget();
   }, 100);
@@ -61,7 +60,7 @@ target.addEventListener("click", () => {
 // --- Start the game ---
 function startGame() {
   score = 0;
-  timeLeft = 60;
+  timeLeft = 20; // reduced time
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time: ${timeLeft}s`;
   moveTarget();
@@ -115,6 +114,7 @@ function showLeaderboardFirebase() {
       });
     });
 }
+
 
 
 
