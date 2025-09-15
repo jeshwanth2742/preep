@@ -1,27 +1,9 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, limit } from "firebase/firestore";
-import { getAnalytics, logEvent } from "firebase/analytics";
-
-// --- Firebase Config ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCiKGqhSSCVQ3GPtnMA1DZSzemXLWoBM1M",
-  authDomain: "preepclicker.firebaseapp.com",
-  projectId: "preepclicker",
-  storageBucket: "preepclicker.firebasestorage.app",
-  messagingSenderId: "108481604",
-  appId: "1:108481604:web:ee13c981b725d02f68c011",
-  measurementId: "G-VHRHQF036D"
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
-
-// --- Screens & Elements (same as before) ---
+// --- Screens ---
 const loginScreen = document.getElementById("login-screen");
 const gameScreen = document.getElementById("game-screen");
 const leaderboardScreen = document.getElementById("leaderboard-screen");
 
+// --- Elements ---
 const usernameInput = document.getElementById("username");
 const startBtn = document.getElementById("start-btn");
 const playAgainBtn = document.getElementById("play-again-btn");
@@ -52,7 +34,7 @@ startBtn.addEventListener("click", () => {
 restartBtn.addEventListener("click", () => location.reload());
 playAgainBtn.addEventListener("click", () => location.reload());
 
-// --- Move target ---
+// --- Move target randomly ---
 function moveTarget() {
   const areaWidth = gameArea.clientWidth;
   const areaHeight = gameArea.clientHeight;
@@ -93,34 +75,42 @@ function endGame() {
   gameScreen.classList.add("hidden");
   leaderboardScreen.classList.remove("hidden");
   saveScoreFirebase(username, score);
-  logEvent(analytics, 'game_finished', { username, score });
+  firebase.analytics().logEvent('game_finished', { username, score });
 }
 
 // --- Save Score to Firebase ---
-async function saveScoreFirebase(name, score) {
-  const userRef = doc(db, "leaderboard", name);
-  const userSnap = await getDoc(userRef);
-
-  if (userSnap.exists()) {
-    if (score > userSnap.data().score) {
-      await setDoc(userRef, { score });
+function saveScoreFirebase(name, score) {
+  const userRef = firebase.firestore().collection("leaderboard").doc(name);
+  userRef.get().then((doc) => {
+    if (doc.exists) {
+      if (score > doc.data().score) {
+        userRef.set({ score });
+      }
+    } else {
+      userRef.set({ score });
     }
-  } else {
-    await setDoc(userRef, { score });
-  }
-
-  showLeaderboardFirebase();
+  }).finally(() => {
+    showLeaderboardFirebase();
+  });
 }
 
 // --- Show Leaderboard ---
-async function showLeaderboardFirebase() {
-  const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(5));
-  const querySnapshot = await getDocs(q);
+function showLeaderboardFirebase() {
+  firebase.firestore()
+    .collection("leaderboard")
+    .orderBy("score", "desc")
+    .limit(5)
+    .get()
+    .then((snapshot) => {
+      leaderboardList.innerHTML = "";
+      let rank = 1;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        leaderboardList.innerHTML += `<li>${rank}. ${doc.id} - ${data.score}</li>`;
+        rank++;
+      });
+    });
+}
 
-  leaderboardList.innerHTML = "";
-  let rank = 1;
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    leaderboardList.inner
 
 
