@@ -7,19 +7,9 @@ body {
   height: 100vh;
   margin: 0;
   font-family: 'Arial', sans-serif;
-  /* Colorful gradient background */
-  background: linear-gradient(135deg, #1e3c72, #2a5298, #ff6a00, #ee0979);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  background: #1a1a2e; /* dark gaming environment */
   color: #fff;
   overflow: hidden;
-}
-
-/* Animate the gradient for a flowing effect */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 /* --- Game Area --- */
@@ -27,7 +17,7 @@ body {
   position: relative;
   width: 400px;
   height: 400px;
-  background: linear-gradient(145deg, #333, #555);
+  background: #162447; /* static dark-blueish background */
   border-radius: 15px;
   border: 2px solid #fff;
   box-shadow: 0 0 20px rgba(255,255,255,0.3);
@@ -43,7 +33,7 @@ body {
   cursor: pointer;
   border-radius: 50%;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 0 0 10px #fff;
+  box-shadow: 0 0 10px #0ff; /* neon cyan glow */
 }
 
 /* --- Score & Timer --- */
@@ -52,17 +42,17 @@ body {
   margin: 5px 0;
   text-align: center;
   transition: color 0.2s ease;
-  text-shadow: 0 0 5px #fff;
+  text-shadow: 0 0 5px #0ff; /* neon effect */
 }
 
-/* --- Floating feedback +1/-1 --- */
+/* --- Floating feedback +1 --- */
 .score-feedback {
   position: absolute;
   font-size: 1.2rem;
   font-weight: bold;
   pointer-events: none;
   animation: floatUp 0.8s ease-out forwards;
-  color: #0f0; /* JS will override for negative */
+  color: #0f0; /* green for positive feedback */
 }
 
 @keyframes floatUp {
@@ -93,20 +83,19 @@ button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background: #ff0;
+  background: #0ff; /* neon cyan */
   color: #111;
   font-weight: bold;
   transition: background 0.2s ease;
 }
 
 button:hover {
-  background: #ffc107;
+  background: #00bcd4;
 }
 
 /* --- Login / Leaderboard Screens --- */
 .hidden { display: none; }
 
-.hidden { display: none; }
 
 
 
